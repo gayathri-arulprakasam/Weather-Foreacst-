@@ -1,0 +1,48 @@
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import org.json.JSONObject;
+
+public class WeatherForecast {
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        System.out.print("Enter city, state (optional), country code (optional): ");
+        String location = reader.readLine();
+
+        String apiKey = "6f8c94b7e7c4c8f3c7c4c8f3c7c4c8";
+        String url = "http://api.openweathermap.org/data/2.5/weather?q=" + location + "&appid=" + apiKey + "&units=metric";
+
+        URL obj = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+        con.setRequestMethod("GET");
+
+        int responseCode = con.getResponseCode();
+        if (responseCode == 200) {
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+ while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            JSONObject jsonObject = new JSONObject(response.toString());
+            JSONObject main = jsonObject.getJSONObject("main");
+            JSONObject wind = jsonObject.getJSONObject("wind");
+            JSONObject sys = jsonObject.getJSONObject("sys");
+
+            System.out.println("Temperature: " + main.getDouble("temp") + "°C");
+            System.out.println("Humidity: " + main.getDouble("humidity") + "%");
+            System.out.println("Max Temperature: " + main.getDouble("temp_max") + "°C");
+            System.out.println("Min Temperature: " + main.getDouble("temp_min") + "°C");
+            System.out.println("Wind Speed: " + wind.getDouble("speed") + " m/s");
+            System.out.println("Sunrise: " + sys.getLong("sunrise"));
+            System.out.println("Sunset: " + sys.getLong("sunset"));
+            System.out.println("Pressure: " + main.getDouble("pressure") + " hPa");
+        } else {
+            System.out.println("Failed to retrieve weather data");
+        }
+    }
+}
